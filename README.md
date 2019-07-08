@@ -48,4 +48,10 @@ further details. To see where modifications have been made, comments
 with the initials `// SJC` have been added.
 
 Functionality to calculate the energy has been implemented, but it
-will only work for real units.
+will only work for real units. Initial tests seem to suggest it is
+working, but this is still preliminary.
+
+To use the constant D methods, it should be sufficient to simply copy
+the `.cpp` and `.h` files into the main LAMMPS src directory and
+recompile.
+
