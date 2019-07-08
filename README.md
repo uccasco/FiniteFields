@@ -46,3 +46,6 @@ Public License (GPL). Please see the [LAMMPS
 website](https://lammps.sandia.gov/doc/Intro_opensource.html) for
 further details. To see where modifications have been made, comments
 with the initials `// SJC` have been added.
+
+Functionality to calculate the energy has been implemented, but it
+will only work for real units.

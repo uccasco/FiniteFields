@@ -83,8 +83,7 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   // mailing list may be useful:
   // http://lammps.sandia.gov/threads/msg10607.html.  Note that qqr2e
   // is initially for converting energies. However, it also works out
-  // that this properly converts 4*pi*P to a force. I have some hand
-  // written notes showing this from August 2018. As the D field is in
+  // that this properly converts 4*pi*P to a force. As the D field is in
   // V/Ang, it has a different conversion factor.
   
   qe2f = force->qe2f; 
@@ -403,8 +402,7 @@ void FixDfield::post_force(int vflag)
 				 // invoked flags, otherwise the
 				 // polarization isn't properly updated
 
-    // SJC: This is a bit of a hack. Not sure if it's entirely needed
-    // but it seems to work.
+    // SJC: Not sure if this is entirely needed but it seems to work.
     if (!(c_OmegaPx->invoked_flag & INVOKED_SCALAR)) {
       c_OmegaPx->compute_scalar();
       c_OmegaPx->invoked_flag |= INVOKED_SCALAR;
