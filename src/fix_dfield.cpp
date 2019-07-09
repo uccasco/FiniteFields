@@ -55,9 +55,11 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   xstr_p(NULL), ystr_p(NULL), zstr_p(NULL),
   estr(NULL), idregion(NULL), dfield(NULL)
 {
-  // SJC: I need to figure out a way to deal with units properly. For
-  // the moment, if they ain't real, this simulation ain't goin
-  // anywhere...
+  // SJC: At the moment, I've only worked with real units. Possible it
+  // might work with other unit systems, but will need testing. Note
+  // that the energy conversion factors at hard-coded in at the
+  // moment, so the energy computed by this fix won't give sensible
+  // numbers for other unit systems yet.
   if (strcmp(update->unit_style,"real") != 0) error->warning(FLERR,"Energy computed with fix dfield only compatible with 'real' energy units");
     
   // SJC: Note that unlike the LAMMPS fix_efield, we require the
@@ -103,13 +105,11 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   // "compute" defined in the LAMMPS input script and not a constant
   // number.
   if (strstr(arg[3],"v_") == arg[3]) {
-    // SJC: if it ever comes to this, I'll need to worry about qe2f and whether it should still be here...
     error->all(FLERR,"fix_dfield only constant displacement fields at the moment");
     int n = strlen(&arg[3][2]) + 1;
     xstr_d = new char[n];
     strcpy(xstr_d,&arg[3][2]);
   } else {
-    //    dx = qe2f * force->numeric(FLERR,arg[3]); // SJC: removed qe2f as we will multiply the whole thing later on
     if (strcmp(arg[3],"NULL") == 0){dxflag = 0; dx=0.0;} else {dx = force->numeric(FLERR,arg[3]);}
     xstyle = CONSTANT;
   }
@@ -120,7 +120,6 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
     ystr_d = new char[n];
     strcpy(ystr_d,&arg[4][2]);
   } else {
-    //    dy = qe2f * force->numeric(FLERR,arg[4]);
     if (strcmp(arg[4],"NULL") == 0){dyflag = 0; dy=0.0;} else{dy = force->numeric(FLERR,arg[4]);}
     ystyle = CONSTANT;
   }
@@ -131,7 +130,6 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
     zstr_d = new char[n];
     strcpy(zstr_d,&arg[5][2]);
   } else {
-    //    dz = qe2f * force->numeric(FLERR,arg[5]);
     if (strcmp(arg[5],"NULL") == 0){dzflag = 0; dz=0.0;} else{dz = force->numeric(FLERR,arg[5]);}
     zstyle = CONSTANT;
   }
@@ -172,36 +170,16 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   while (iarg < narg) {
     if (strcmp(arg[iarg],"region") == 0) {
       error->all(FLERR,"fix_dfield not yet implemented with 'region' keyword");
-      // SJC:      if (iarg+2 > narg) error->all(FLERR,"Illegal fix efield command");
-      // SJC:      iregion = domain->find_region(arg[iarg+1]);
-      // SJC:      if (iregion == -1)
-      // SJC:     error->all(FLERR,"Region ID for fix efield does not exist");
-      // SJC:     int n = strlen(arg[iarg+1]) + 1;
-      // SJC:     idregion = new char[n];
-      // SJC:     strcpy(idregion,arg[iarg+1]);
-      // SJC:     iarg += 2;
     } else if (strcmp(arg[iarg],"energy") == 0) {
       error->all(FLERR,"fix_dfield not yet implemented with 'energy' keyword");
-      // SJC:      if (iarg+2 > narg) error->all(FLERR,"Illegal fix efield command");
-      // SJC:      if (strstr(arg[iarg+1],"v_") == arg[iarg+1]) {
-      // SJC:        int n = strlen(&arg[iarg+1][2]) + 1;
-      // SJC:        estr = new char[n];
-      // SJC:        strcpy(estr,&arg[iarg+1][2]);
-      // SJC:      } else error->all(FLERR,"Illegal fix efield command");
-      // SJC:      iarg += 2;
     } else error->all(FLERR,"Illegal fix dfield command");
   }
 
   force_flag = 0;
   fsum[0] = fsum[1] = fsum[2] = fsum[3] = 0.0;
-  // SJC: why four components? -- later on we see that "0" is the
-  // potential energy due to this force, and "123" are the "xyz"
-  // forces.
 
   maxatom = atom->nmax;
   memory->create(dfield,maxatom,4,"dfield:dfield");
-  // SJC: just changed efield->dfield. I couldn't find anything in
-  // memory.cpp/.h to suggest that this might clause problems.
 }
 
 /* ---------------------------------------------------------------------- */
@@ -391,9 +369,6 @@ void FixDfield::post_force(int vflag)
   if (varflag == CONSTANT) {
     double unwrap[3];
 
-    // charge interactions
-    // force = q(D-FOURPI*P/Omega), potential energy = F dot x in unwrapped coords
-
     double Omega = domain->xprd * domain->yprd * domain->zprd;
     double Omegainv = 1.0/Omega;
 
@@ -443,7 +418,7 @@ void FixDfield::post_force(int vflag)
           f[i][2] += fz;
 	  
           domain->unmap(x[i],image[i],unwrap);
-	  //          fsum[0] -= fx*unwrap[0]+fy*unwrap[1]+fz*unwrap[2]; // SJC: we've done the energy earlier.
+
           fsum[1] += fx;
           fsum[2] += fy;
           fsum[3] += fz;
@@ -482,71 +457,6 @@ void FixDfield::post_force(int vflag)
 
     error->all(FLERR,"fix_dfield only works with constant displacement fields at the moment");
     
-// SJC:     modify->clearstep_compute();
-// SJC:     
-// SJC:     if (xstyle == EQUAL) dx = qe2f * input->variable->compute_equal(xvar);
-// SJC:     else if (xstyle == ATOM)
-// SJC:       input->variable->compute_atom(xvar,igroup,&dfield[0][0],4,0);
-// SJC:     if (ystyle == EQUAL) dy = qe2f * input->variable->compute_equal(yvar);
-// SJC:     else if (ystyle == ATOM)
-// SJC:       input->variable->compute_atom(yvar,igroup,&dfield[0][1],4,0);
-// SJC:     if (zstyle == EQUAL) dz = qe2f * input->variable->compute_equal(zvar);
-// SJC:     else if (zstyle == ATOM)
-// SJC:       input->variable->compute_atom(zvar,igroup,&dfield[0][2],4,0);
-// SJC:     if (estyle == ATOM)
-// SJC:       input->variable->compute_atom(evar,igroup,&dfield[0][3],4,0);
-// SJC:     
-// SJC:     modify->addstep_compute(update->ntimestep + 1);
-// SJC:     
-// SJC:     // charge interactions
-// SJC:     // SJC: force = q*(D-FOURPI*P)
-// SJC:     
-// SJC:     double Omega = domain->xprd*ANG2BOHR * domain->yprd*ANG2BOHR * domain->zprd*ANG2BOHR;
-// SJC:     double Omegainv = 1.0/Omega;
-// SJC:     
-// SJC:     // SJC: do I need to worry about invoking? c.f. compute_heat_flux.cpp line 109
-// SJC:     double Px = Omegainv*c_OmegaPx->compute_scalar();
-// SJC:     double Py = Omegainv*c_OmegaPy->compute_scalar();
-// SJC:     double Pz = Omegainv*c_OmegaPz->compute_scalar();
-// SJC:         
-// SJC:     if (qflag) {
-// SJC:       for (int i = 0; i < nlocal; i++)
-// SJC: 	if (mask[i] & groupbit) {
-// SJC: 	  if (region && !region->match(x[i][0],x[i][1],x[i][2])) continue;
-// SJC: 	  if (xstyle == ATOM) fx = qe2f * q[i]*(dfield[i][0] - MY_4PI*Px);
-// SJC: 	  else fx = q[i]*(dx - MY_4PI*Px);
-// SJC: 	  f[i][0] += fx;
-// SJC: 	  fsum[1] += fx;
-// SJC: 	  if (ystyle == ATOM) fy = qe2f * q[i]*(dfield[i][1] - MY_4PI*Py);
-// SJC: 	  else fy = q[i]*(dy - MY_4PI*Py);
-// SJC: 	  f[i][1] += fy;
-// SJC: 	  fsum[2] += fy;
-// SJC: 	  if (zstyle == ATOM) fz = qe2f * q[i]*(dfield[i][2] - MY_4PI*Pz);
-// SJC: 	  else fz = q[i]*(dz - MY_4PI*Pz);
-// SJC: 	  f[i][2] += fz;
-// SJC: 	  fsum[3] += fz;
-// SJC: 	  if (estyle == ATOM) fsum[0] += dfield[0][3];
-// SJC: 	}
-// SJC:     }
-// SJC:     
-// SJC:     // dipole interactions
-// SJC:     // no force, torque = mu cross E
-// SJC:     
-// SJC:     if (muflag) {
-// SJC:       // SJC:      double **mu = atom->mu;
-// SJC:       // SJC:      double **t = atom->torque;
-// SJC:       // SJC:      double tx,ty,tz;
-// SJC:       // SJC:      for (int i = 0; i < nlocal; i++)
-// SJC:       // SJC:        if (mask[i] & groupbit) {
-// SJC:       // SJC:          if (region && !region->match(x[i][0],x[i][1],x[i][2])) continue;
-// SJC:       // SJC:          tx = ez*mu[i][1] - ey*mu[i][2];
-// SJC:       // SJC:          ty = ex*mu[i][2] - ez*mu[i][0];
-// SJC:       // SJC:          tz = ey*mu[i][0] - ex*mu[i][1];
-// SJC:       // SJC:          t[i][0] += tx;
-// SJC:       // SJC:          t[i][1] += ty;
-// SJC:       // SJC:          t[i][2] += tz;
-// SJC:       // SJC:        }
-// SJC:     }
   }
 }
 
@@ -581,12 +491,7 @@ double FixDfield::memory_usage()
 
 double FixDfield::compute_scalar(void)
 {
-  // SJC: don't think I need this for fix dfield...
-  //  if (force_flag == 0) {
-  //    MPI_Allreduce(fsum,fsum_all,4,MPI_DOUBLE,MPI_SUM,world);
-  //    force_flag = 1;
-  //  }
-  //return fsum_all[0];
+  // SJC: Note the difference in structure from fix_efield
   return fsum[0];
 }
 
