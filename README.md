@@ -35,7 +35,7 @@ e.g. setting D<sub>x</sub> = 2.0 V/A but not setting D<sub>y</sub> or
 D<sub>z</sub>, then we could use:
 
 ```
-fix Densemble all dfield 0.0 NULL NULL c_OmegaPx c_OmegaPy c_OmegaPz
+fix Densemble all dfield 2.0 NULL NULL c_OmegaPx c_OmegaPy c_OmegaPz
 ```
 
 It has been tested with the Sept 2017 version of the LAMMPS
