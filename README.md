@@ -4,7 +4,11 @@ Implementation of finite field methods in LAMMPS
 This is an implementation of the constant D ensemble in LAMMPS, based
 on the work of Stengel, Spaldin and Vanderbilt [Nature Phys. 5,
 304–308 (2009)], which was later adopted for finite temperature MD
-simulation by Zhang and Sprik [Phys. Rev. B 93, 144201 (2016)].
+simulation by Zhang and Sprik [Phys. Rev. B 93, 144201 (2016)]. In
+addition to the original citations, if you use this code, it would be
+greatly appreciated if you cite:
+
+> S. J. Cox and M. Sprik, <i> J. Chem. Phys. </i> doi: 10.1063/1.5099207
 
 The code is directly based upon the fix_efield routines that come as
 standard in LAMMPS. However, an important difference is that the
