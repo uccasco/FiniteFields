@@ -8,7 +8,9 @@ simulation by Zhang and Sprik [Phys. Rev. B 93, 144201 (2016)]. In
 addition to the original citations, if you use this code, it would be
 greatly appreciated if you cite:
 
-> S. J. Cox and M. Sprik, <i>J. Chem. Phys.</i> <b>151</b> (2019); doi: 10.1063/1.5099207
+> S. J. Cox and M. Sprik, <i>J. Chem. Phys.</i> <b>151</b>, 064506 (2019); doi: 10.1063/1.5099207
+
+The full article can be found [here](https://aip.scitation.org/doi/10.1063/1.5099207).
 
 The code is directly based upon the fix_efield routines that come as
 standard in LAMMPS. However, an important difference is that the
