@@ -16,11 +16,12 @@ the TIP4P routines (see below), please additionally cite:
 
 > T. Sayer and S. J. Cox, <i> Phys. Chem. Chem. Phys. </i> <b>21</b>, 14546 (2019); doi: 10.1039/c9cp02193k
 
-The full article can be found [here](10.1039/c9cp02193k). The code is
-directly based upon the fix_efield routines that come as standard in
-LAMMPS. However, an important difference is that the itinerant
-polarization must be supplied to the fix from the input file. This can
-be achieved with the following commands:
+The full article can be found
+[here](https://pubs.rsc.org/en/content/articlepdf/2019/cp/c9cp02193k). The
+code is directly based upon the fix_efield routines that come as
+standard in LAMMPS. However, an important difference is that the
+itinerant polarization must be supplied to the fix from the input
+file. This can be achieved with the following commands:
 
 ```
 # Store the initial atom positions
