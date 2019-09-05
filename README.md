@@ -16,10 +16,11 @@ the TIP4P routines (see below), please additionally cite:
 
 > T. Sayer and S. J. Cox, <i> Phys. Chem. Chem. Phys. </i> <b>21</b>, 14546 (2019); doi: 10.1039/c9cp02193k
 
-The code is directly based upon the fix_efield routines that come as
-standard in LAMMPS. However, an important difference is that the
-itinerant polarization must be supplied to the fix from the input
-file. This can be achieved with the following commands:
+The full article can be found [here](10.1039/c9cp02193k) The code is
+directly based upon the fix_efield routines that come as standard in
+LAMMPS. However, an important difference is that the itinerant
+polarization must be supplied to the fix from the input file. This can
+be achieved with the following commands:
 
 ```
 # Store the initial atom positions
@@ -67,12 +68,12 @@ and recompile.
 
 ## Use with TIP4P style potentials
 
-To apply fields to TIP4P-style models require appropriate distribution
-of the forces from the virtual site to the O and H atoms. The files
-"*_tip4p.cpp/.h" provide the capability for this. Assuming O is atom
-type 1 and H is atom type 2, and that the bond and angle IDs are both
-1, an electric field would be applied with the following command in
-the LAMMPS input file:
+To apply fields to TIP4P-style models requires appropriate
+distribution of the forces from the virtual site to the O and H
+atoms. The files "*_tip4p.cpp/.h" provide the capability for
+this. Assuming O is atom type 1 and H is atom type 2, and that the
+bond and angle IDs are both 1, an electric field would be applied with
+the following command in the LAMMPS input file:
 
 ```
 fix Eensemble fluid efield/tip4p 0.0 0.0 -0.031 1 2 1 1 0.1546 -1.112800
