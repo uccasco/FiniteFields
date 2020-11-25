@@ -15,7 +15,7 @@
    Contributing author: Christina Payne (Vanderbilt U)
                         Stan Moore (Sandia) for dipole terms
 
-   Modified from constant E to constant D, (2017-2019): 
+   Modified from constant E to constant D, (2017-2018): 
    Stephen J. Cox (University of Cambridge)
 
    Copyright (2019) Stephen J. Cox
@@ -51,9 +51,9 @@ enum{NONE,CONSTANT,EQUAL,ATOM};
 /* ---------------------------------------------------------------------- */
 
 FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), xstr_d(NULL), ystr_d(NULL), zstr_d(NULL),
-  xstr_p(NULL), ystr_p(NULL), zstr_p(NULL),
-  estr(NULL), idregion(NULL), dfield(NULL)
+  Fix(lmp, narg, arg), xstr_d(nullptr), ystr_d(nullptr), zstr_d(nullptr),
+  xstr_p(nullptr), ystr_p(nullptr), zstr_p(nullptr),
+  estr(nullptr), idregion(nullptr), dfield(nullptr)
 {
   // SJC: At the moment, I've only worked with real units. Possible it
   // might work with other unit systems, but will need testing. Note
@@ -89,7 +89,7 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   // V/Ang, it has a different conversion factor.
   
   qe2f = force->qe2f; 
-  xstr_d = ystr_d = zstr_d = NULL;
+  xstr_d = ystr_d = zstr_d = nullptr;
 
   // SJC: In order to calculate the energy, I need to define some of
   // my own conversion factors. If this works, then I could consider
@@ -110,7 +110,7 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
     xstr_d = new char[n];
     strcpy(xstr_d,&arg[3][2]);
   } else {
-    if (strcmp(arg[3],"NULL") == 0){dxflag = 0; dx=0.0;} else {dx = force->numeric(FLERR,arg[3]);}
+    if (strcmp(arg[3],"NULL") == 0){dxflag = 0; dx=0.0;} else {dx = utils::numeric(FLERR,arg[3],false,lmp);}
     xstyle = CONSTANT;
   }
 
@@ -120,7 +120,7 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
     ystr_d = new char[n];
     strcpy(ystr_d,&arg[4][2]);
   } else {
-    if (strcmp(arg[4],"NULL") == 0){dyflag = 0; dy=0.0;} else{dy = force->numeric(FLERR,arg[4]);}
+    if (strcmp(arg[4],"NULL") == 0){dyflag = 0; dy=0.0;} else{dy = utils::numeric(FLERR,arg[4],false,lmp);}
     ystyle = CONSTANT;
   }
 
@@ -130,7 +130,7 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
     zstr_d = new char[n];
     strcpy(zstr_d,&arg[5][2]);
   } else {
-    if (strcmp(arg[5],"NULL") == 0){dzflag = 0; dz=0.0;} else{dz = force->numeric(FLERR,arg[5]);}
+    if (strcmp(arg[5],"NULL") == 0){dzflag = 0; dz=0.0;} else{dz = utils::numeric(FLERR,arg[5],false,lmp);}
     zstyle = CONSTANT;
   }
 
@@ -163,8 +163,8 @@ FixDfield::FixDfield(LAMMPS *lmp, int narg, char **arg) :
   // optional args
 
   iregion = -1;
-  idregion = NULL;
-  estr = NULL;
+  idregion = nullptr;
+  estr = nullptr;
 
   int iarg = 9;
   while (iarg < narg) {
@@ -218,7 +218,7 @@ void FixDfield::init()
   if (atom->q_flag) qflag = 1;
   if (atom->mu_flag && atom->torque_flag) muflag = 1;
   if (!qflag && !muflag)
-    error->all(FLERR,"Fix efield requires atom attribute q or mu");
+    error->all(FLERR,"Fix dfield requires atom attribute q or mu");
 
   // SJC: warn that energy hasn't been implemented for dipoles yet...
   if(muflag){error->warning(FLERR,"Energy calculation not implemented propely for dipoles yet");}
@@ -349,7 +349,7 @@ void FixDfield::post_force(int vflag)
 
   // update region if necessary
 
-  Region *region = NULL;
+  Region *region = nullptr;
   if (iregion >= 0) {
     region = domain->regions[iregion];
     region->prematch();
@@ -369,6 +369,9 @@ void FixDfield::post_force(int vflag)
   if (varflag == CONSTANT) {
     double unwrap[3];
 
+    // charge interactions
+    // force = q(D-FOURPI*P/Omega), potential energy = F dot x in unwrapped coords
+
     double Omega = domain->xprd * domain->yprd * domain->zprd;
     double Omegainv = 1.0/Omega;
 
@@ -377,7 +380,7 @@ void FixDfield::post_force(int vflag)
 				 // invoked flags, otherwise the
 				 // polarization isn't properly updated
 
-    // SJC: Not sure if this is entirely needed but it seems to work.
+    // SJC: Not sure if it's entirely needed but it seems to work.
     if (!(c_OmegaPx->invoked_flag & INVOKED_SCALAR)) {
       c_OmegaPx->compute_scalar();
       c_OmegaPx->invoked_flag |= INVOKED_SCALAR;
@@ -418,7 +421,7 @@ void FixDfield::post_force(int vflag)
           f[i][2] += fz;
 	  
           domain->unmap(x[i],image[i],unwrap);
-
+	  
           fsum[1] += fx;
           fsum[2] += fy;
           fsum[3] += fz;
