@@ -55,9 +55,9 @@ enum{NONE,CONSTANT,EQUAL,ATOM};
 /* ---------------------------------------------------------------------- */
 
 FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), xstr_d(NULL), ystr_d(NULL), zstr_d(NULL),
-  xstr_p(NULL), ystr_p(NULL), zstr_p(NULL),
-  estr(NULL), idregion(NULL), dfield_tip4p(NULL)
+  Fix(lmp, narg, arg), xstr_d(nullptr), ystr_d(nullptr), zstr_d(nullptr),
+  xstr_p(nullptr), ystr_p(nullptr), zstr_p(nullptr),
+  estr(nullptr), idregion(nullptr), dfield_tip4p(nullptr)
 {
   // SJC: At the moment, I've only worked with real units. Possible it
   // might work with other unit systems, but will need testing. Note
@@ -93,7 +93,7 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
   // in V/Ang, it has a different conversion factor.
   
   qe2f = force->qe2f; 
-  xstr_d = ystr_d = zstr_d = NULL;
+  xstr_d = ystr_d = zstr_d = nullptr;
 
   // SJC: In order to calculate the energy, I need to define some of
   // my own conversion factors. If this works, then I could consider
@@ -114,7 +114,7 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     xstr_d = new char[n];
     strcpy(xstr_d,&arg[3][2]);
   } else {
-    if (strcmp(arg[3],"NULL") == 0){dxflag = 0; dx=0.0;} else {dx = force->numeric(FLERR,arg[3]);}
+    if (strcmp(arg[3],"NULL") == 0){dxflag = 0; dx=0.0;} else {dx = utils::numeric(FLERR,arg[3],false,lmp);}
     xstyle = CONSTANT;
   }
 
@@ -124,7 +124,7 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     ystr_d = new char[n];
     strcpy(ystr_d,&arg[4][2]);
   } else {
-    if (strcmp(arg[4],"NULL") == 0){dyflag = 0; dy=0.0;} else{dy = force->numeric(FLERR,arg[4]);}
+    if (strcmp(arg[4],"NULL") == 0){dyflag = 0; dy=0.0;} else{dy = utils::numeric(FLERR,arg[4],false,lmp);}
     ystyle = CONSTANT;
   }
 
@@ -134,8 +134,7 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     zstr_d = new char[n];
     strcpy(zstr_d,&arg[5][2]);
   } else {
-    //    dz = qe2f * force->numeric(FLERR,arg[5]);
-    if (strcmp(arg[5],"NULL") == 0){dzflag = 0; dz=0.0;} else{dz = force->numeric(FLERR,arg[5]);}
+    if (strcmp(arg[5],"NULL") == 0){dzflag = 0; dz=0.0;} else{dz = utils::numeric(FLERR,arg[5],false,lmp);}
     zstyle = CONSTANT;
   }
 
@@ -165,12 +164,12 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     error->all(FLERR,"Polarization in fix dfield/tip4p must be a compute.");
   }
 
-  typeO = force->inumeric(FLERR,arg[9]);
-  typeH = force->inumeric(FLERR,arg[10]);
-  typeB = force->inumeric(FLERR,arg[11]);
-  typeA = force->inumeric(FLERR,arg[12]);
-  qdist = force->numeric(FLERR,arg[13]);
-  qM    = force->numeric(FLERR,arg[14]);
+  typeO = utils::inumeric(FLERR,arg[9] ,false,lmp);
+  typeH = utils::inumeric(FLERR,arg[10],false,lmp);
+  typeB = utils::inumeric(FLERR,arg[11],false,lmp);
+  typeA = utils::inumeric(FLERR,arg[12],false,lmp);
+  qdist = utils::numeric(FLERR,arg[13] ,false,lmp);
+  qM    = utils::numeric(FLERR,arg[14] ,false,lmp);
 
   double theta = force->angle->equilibrium_angle(typeA);
   double blen = force->bond->equilibrium_distance(typeB);
@@ -179,8 +178,8 @@ FixDfieldTip4p::FixDfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
   // optional args
 
   iregion = -1;
-  idregion = NULL;
-  estr = NULL;
+  idregion = nullptr;
+  estr = nullptr;
 
   int iarg = 15;
   while (iarg < narg) {
@@ -368,7 +367,7 @@ void FixDfieldTip4p::post_force(int vflag)
 
   // update region if necessary
 
-  Region *region = NULL;
+  Region *region = nullptr;
   if (iregion >= 0) {
     region = domain->regions[iregion];
     region->prematch();
@@ -387,6 +386,9 @@ void FixDfieldTip4p::post_force(int vflag)
 
   if (varflag == CONSTANT) {
     double unwrap[3];
+
+    // charge interactions
+    // force = q(D-FOURPI*P/Omega), potential energy = F dot x in unwrapped coords
 
     double Omega = domain->xprd * domain->yprd * domain->zprd;
     double Omegainv = 1.0/Omega;
