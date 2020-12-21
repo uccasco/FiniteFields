@@ -2,8 +2,9 @@
 
 Implementation of finite field methods in LAMMPS. The files tagged
 03Mar2020 should work with LAMMPS versions prior to the 29Oct2020
-stable release. Updating these file for use with LAMMPS >= 29Oct2020
-is work in progress.
+stable release. The source files in the master branch should be
+compatible with LAMMPS >= 29Oct2020. These have been tested against
+the previous versions on short simulations, though not extensively.
 
 This is an implementation of the constant D ensemble in LAMMPS, based
 on the work of Stengel, Spaldin and Vanderbilt [Nature Phys. 5,
