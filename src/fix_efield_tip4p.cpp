@@ -50,8 +50,8 @@ enum{NONE,CONSTANT,EQUAL,ATOM};
 /* ---------------------------------------------------------------------- */
 
 FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
-  Fix(lmp, narg, arg), xstr(NULL), ystr(NULL), zstr(NULL),
-  estr(NULL), idregion(NULL), efield_tip4p(NULL)
+  Fix(lmp, narg, arg), xstr(nullptr), ystr(nullptr), zstr(nullptr),
+  estr(nullptr), idregion(nullptr), efield_tip4p(nullptr)
 {
   if (narg < 12) error->all(FLERR,"Illegal fix efield/tip4p command");
 
@@ -66,7 +66,7 @@ FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
   ilevel_respa = 0;
 
   qe2f = force->qe2f;
-  xstr = ystr = zstr = NULL;
+  xstr = ystr = zstr = nullptr;
 
   if (strstr(arg[3],"v_") == arg[3]) {
     error->all(FLERR,"Fix efield/tip4p not yet compatible with variable fields");
@@ -74,7 +74,7 @@ FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     xstr = new char[n];
     strcpy(xstr,&arg[3][2]);
   } else {
-    ex = qe2f * force->numeric(FLERR,arg[3]);
+    ex = qe2f * utils::numeric(FLERR,arg[3],false,lmp);
     xstyle = CONSTANT;
   }
 
@@ -84,7 +84,7 @@ FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     ystr = new char[n];
     strcpy(ystr,&arg[4][2]);
   } else {
-    ey = qe2f * force->numeric(FLERR,arg[4]);
+    ey = qe2f * utils::numeric(FLERR,arg[4],false,lmp);
     ystyle = CONSTANT;
   }
 
@@ -94,16 +94,16 @@ FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
     zstr = new char[n];
     strcpy(zstr,&arg[5][2]);
   } else {
-    ez = qe2f * force->numeric(FLERR,arg[5]);
+    ez = qe2f * utils::numeric(FLERR,arg[5],false,lmp);
     zstyle = CONSTANT;
   }
 
-  typeO = force->inumeric(FLERR,arg[6]);
-  typeH = force->inumeric(FLERR,arg[7]);
-  typeB = force->inumeric(FLERR,arg[8]);
-  typeA = force->inumeric(FLERR,arg[9]);
-  qdist = force->numeric(FLERR,arg[10]);
-  qM    = force->numeric(FLERR,arg[11]);
+  typeO = utils::inumeric(FLERR,arg[6],false,lmp);
+  typeH = utils::inumeric(FLERR,arg[7],false,lmp);
+  typeB = utils::inumeric(FLERR,arg[8],false,lmp);
+  typeA = utils::inumeric(FLERR,arg[9],false,lmp);
+  qdist = utils::numeric(FLERR,arg[10],false,lmp);
+  qM    = utils::numeric(FLERR,arg[11],false,lmp);
 
   double theta = force->angle->equilibrium_angle(typeA);
   double blen = force->bond->equilibrium_distance(typeB);
@@ -112,8 +112,8 @@ FixEfieldTip4p::FixEfieldTip4p(LAMMPS *lmp, int narg, char **arg) :
   // optional args
 
   iregion = -1;
-  idregion = NULL;
-  estr = NULL;
+  idregion = nullptr;
+  estr = nullptr;
 
   int iarg = 12;
   while (iarg < narg) {
@@ -293,7 +293,7 @@ void FixEfieldTip4p::post_force(int vflag)
 
   // update region if necessary
 
-  Region *region = NULL;
+  Region *region = nullptr;
   if (iregion >= 0) {
     region = domain->regions[iregion];
     region->prematch();
