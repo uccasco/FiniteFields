@@ -161,7 +161,7 @@ FixEfieldTip4p::~FixEfieldTip4p()
 int FixEfieldTip4p::setmask()
 {
   int mask = 0;
-  mask |= THERMO_ENERGY;
+  //SJC:  mask |= THERMO_ENERGY;
   mask |= POST_FORCE;
   mask |= POST_FORCE_RESPA;
   mask |= MIN_POST_FORCE;

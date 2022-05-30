@@ -1,10 +1,19 @@
 # FiniteFields
 
-Implementation of finite field methods in LAMMPS. The files tagged
-03Mar2020 should work with LAMMPS versions prior to the 29Oct2020
-stable release. The source files in the master branch should be
-compatible with LAMMPS >= 29Oct2020. These have been tested against
-the previous versions on short simulations, though not extensively.
+Implementation of finite field methods in LAMMPS. The tagging systems
+is as follows:
+
+tag = 03Mar2020; should be compatible with stable 03Mar2020 version of LAMMPS
+tag = 29Oct2020; should be compatible with stable 29Oct2020 version of LAMMPS
+
+Source files in the master branch should be compatible with the
+29Sept2021 stable version of LAMMPS. Changes between 29Oct2020 and
+29Sept2021 are minimal, and the "fix_dfield" implementation gives
+identical trajectories between the two trajectories for short
+simulations of pure water, an electrolyte solution, and a NaCl (111)
+surface. <b>The "fix_dfield_tip4p" and "fix_efield_tip4p" have not been
+tested between versions.</b>
+
 
 This is an implementation of the constant D ensemble in LAMMPS, based
 on the work of Stengel, Spaldin and Vanderbilt [Nature Phys. 5,
