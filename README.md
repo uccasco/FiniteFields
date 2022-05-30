@@ -3,7 +3,7 @@
 Implementation of finite field methods in LAMMPS. The tagging systems
 is as follows:
 
-tag = 03Mar2020; should be compatible with stable 03Mar2020 version of LAMMPS
+tag = 03Mar2020; should be compatible with stable 03Mar2020 version of LAMMPS<br>
 tag = 29Oct2020; should be compatible with stable 29Oct2020 version of LAMMPS
 
 Source files in the master branch should be compatible with the
